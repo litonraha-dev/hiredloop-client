@@ -77,7 +77,7 @@ export function Navbar({ className, ...props }: React.ComponentProps<"header">) 
                 Sign In
               </Link>
               <Link
-                href="/get-started"
+                href="/sign-up"
                 className={cn(
                   "flex h-[52px] items-center rounded-xl border border-[#090a15]/10 bg-[#5c53fe] px-6 text-lg font-medium text-white shadow-[inset_0_3px_10px_rgba(255,255,255,0.2)] transition-colors hover:bg-[#4a42e6]",
                   instrumentSans.className
