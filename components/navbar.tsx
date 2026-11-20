@@ -47,16 +47,8 @@ export function Navbar({
   const [loggingOut, setLoggingOut] = useState(false);
 
   const { data: session, isPending } = useSession();
+  const role = session?.user.role;
 
-  const role = session?.user?.role;
-
-  // Role based dashboard
-  const dashboardUrl =
-    role === "admin"
-      ? "/admin/dashboard"
-      : role === "recruiter"
-      ? "/recruiter/dashboard"
-      : "/seeker/dashboard";
 
   // Logout
   const handleLogout = async () => {
@@ -154,7 +146,7 @@ export function Navbar({
                   </div>
 
                   <Link
-                    href={dashboardUrl}
+                    href="/dashboard"
                     className="flex h-[48px] items-center gap-2 rounded-xl bg-white/10 px-4 text-white hover:bg-white/20 transition"
                   >
                     <LayoutDashboard size={18} />
@@ -257,7 +249,7 @@ export function Navbar({
                 </div>
 
                 <Link
-                  href={dashboardUrl}
+                  href="/dashboard"
                   onClick={() => setMobileOpen(false)}
                   className="flex h-[48px] items-center justify-center gap-2 rounded-xl bg-white/10 text-white hover:bg-white/20 transition"
                 >

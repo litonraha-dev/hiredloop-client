@@ -21,28 +21,9 @@ export default function SignInPage() {
     password: "",
   });
 
-  // Redirect authenticated users according to their role
   useEffect(() => {
     if (isPending || !session) return;
-
-    const role = session.user.role;
-
-    switch (role) {
-      case "admin":
-        router.replace("/admin/dashboard");
-        break;
-
-      case "recruiter":
-        router.replace("/recruiter/dashboard");
-        break;
-
-      case "seeker":
-        router.replace("/seeker/dashboard");
-        break;
-
-      default:
-        router.replace("/unauthorized");
-    }
+    router.replace("/dashboard");
   }, [session, isPending, router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

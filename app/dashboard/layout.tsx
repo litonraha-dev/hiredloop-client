@@ -2,10 +2,13 @@ import React from 'react';
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 
 import { DashboardSidebar } from '../components/DashboardSidebar';
-const DashboardLayout = ({children}:{children:React.ReactNode}) => {
+import { requireRole } from "@/lib/authorization";
+
+const DashboardLayout = async ({children}:{children:React.ReactNode}) => {
+    const role = await requireRole();
     return (
        <SidebarProvider>
-      <DashboardSidebar />
+      <DashboardSidebar role={role} />
       <main>
         <SidebarTrigger />
         {children}

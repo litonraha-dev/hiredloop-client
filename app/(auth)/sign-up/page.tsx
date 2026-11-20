@@ -62,7 +62,6 @@ const [formData, setFormData]= useState({
       image: formData.image || undefined,
       accountType: formData.accountType,
     });
-    console.log(formData, "from sign up")
 
     if (error) {
       toast.error(error.message || "Signup failed");
@@ -71,7 +70,7 @@ const [formData, setFormData]= useState({
 
     toast.success("Account created successfully!");
 
-    router.push("/");
+    router.push("/dashboard");
     router.refresh();
 
   } catch (error) {

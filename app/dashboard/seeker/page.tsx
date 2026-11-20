@@ -1,6 +1,8 @@
-import React from 'react';
+import { requireRole } from "@/lib/authorization";
+import { USER_ROLES } from "@/lib/roles";
 
-const SeekerDashboardPage = () => {
+const SeekerDashboardPage = async () => {
+    await requireRole(USER_ROLES.SEEKER);
     return (
         <div>
             Seeker Dashboard Page
