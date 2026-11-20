@@ -8,6 +8,7 @@ import { Toast } from "@base-ui/react";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 
+type AccountType = "seeker" | "recruiter";
 export default function SignUpPage() {
   const router = useRouter();
 
@@ -21,6 +22,7 @@ const [formData, setFormData]= useState({
   password:'',
   confirmPassword:"",
   image:"",
+  accountType: "seeker" as AccountType,
 })
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -58,6 +60,7 @@ const [formData, setFormData]= useState({
       email: formData.email.trim(),
       password: formData.password,
       image: formData.image || undefined,
+      accountType: formData.accountType,
     });
     console.log(formData, "from sign up")
 
@@ -124,6 +127,71 @@ const [formData, setFormData]= useState({
               required
               className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
             />
+          </div>
+     <div>
+            <label className="block text-sm font-medium mb-3">
+              Select Account Type
+            </label>
+
+            <div className="grid grid-cols-2 gap-3">
+
+              {/* Job Seeker */}
+              <button
+                type="button"
+                onClick={() =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    accountType: "seeker",
+                  }))
+                }
+                className={`border rounded-xl p-4 text-center transition ${
+                  formData.accountType === "seeker"
+                    ? "border-blue-600 bg-blue-50 ring-2 ring-blue-500"
+                    : "border-gray-300 hover:border-blue-400"
+                }`}
+              >
+                <div className="text-2xl mb-2">
+                  👨‍💻
+                </div>
+
+                <p className="font-semibold text-slate-800">
+                  Job Seeker
+                </p>
+
+                <p className="text-xs text-gray-500 mt-1">
+                  Find your dream job
+                </p>
+              </button>
+
+              {/* Recruiter */}
+              <button
+                type="button"
+                onClick={() =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    accountType: "recruiter",
+                  }))
+                }
+                className={`border rounded-xl p-4 text-center transition ${
+                  formData.accountType === "recruiter"
+                    ? "border-blue-600 bg-blue-50 ring-2 ring-blue-500"
+                    : "border-gray-300 hover:border-blue-400"
+                }`}
+              >
+                <div className="text-2xl mb-2">
+                  🏢
+                </div>
+
+                <p className="font-semibold text-slate-800">
+                  Recruiter
+                </p>
+
+                <p className="text-xs text-gray-500 mt-1">
+                  Hire talented people
+                </p>
+              </button>
+
+            </div>
           </div>
 
            <div>

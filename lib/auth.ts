@@ -10,6 +10,42 @@ export const auth = betterAuth({
       emailAndPassword: { 
     enabled: true, 
   }, 
+    user: {
+       additionalFields: {
+          role: {
+              type: ["seeker", "recruiter",'admin' ],
+        required: false,
+        defaultValue: "seeker",
+        input: false,
+            } ,
+            accountType: {
+        type: ["seeker", "recruiter"],
+        required: true,
+        input: true,
+      },
+        }
+    },
+      databaseHooks: {
+    user: {
+      create: {
+        before: async (user) => {
+          const accountType = user.accountType;
+
+          const role =
+            accountType === "recruiter"
+              ? "recruiter"
+              : "seeker";
+
+          return {
+            data: {
+              ...user,
+              role,
+            },
+          };
+        },
+      },
+    },
+  },
    socialProviders: {
         google: { 
             clientId: process.env.GOOGLE_CLIENT_ID as string, 

@@ -1,7 +1,7 @@
 
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
@@ -10,14 +10,40 @@ import { toast } from "sonner";
 export default function SignInPage() {
   const router = useRouter();
 
+  const { data: session, isPending } = authClient.useSession();
 
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-    const [formData, setFormData] = useState({
+
+  const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+
+  // Redirect authenticated users according to their role
+  useEffect(() => {
+    if (isPending || !session) return;
+
+    const role = session.user.role;
+
+    switch (role) {
+      case "admin":
+        router.replace("/admin/dashboard");
+        break;
+
+      case "recruiter":
+        router.replace("/recruiter/dashboard");
+        break;
+
+      case "seeker":
+        router.replace("/seeker/dashboard");
+        break;
+
+      default:
+        router.replace("/unauthorized");
+    }
+  }, [session, isPending, router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -27,8 +53,11 @@ export default function SignInPage() {
       [name]: value,
     }));
   };
- const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    setError("");
 
     try {
       setLoading(true);
@@ -37,29 +66,41 @@ export default function SignInPage() {
         email: formData.email,
         password: formData.password,
       });
-      console.log(formData, "from sign in");
+
       if (error) {
         toast.error(error.message || "Invalid email or password");
         return;
       }
+
       setFormData({
         email: "",
         password: "",
       });
+
       toast.success("Signed in successfully!");
 
-      router.push("/");
-      router.refresh();
+      // Session hook will detect the updated session
+      // useEffect will redirect based on user role
+
     } catch (error) {
       console.error("Sign in error:", error);
       toast.error("Something went wrong!");
     } finally {
       setLoading(false);
     }
+  };
+
+  // Wait for authentication state
+  if (isPending || session) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-600">Checking authentication...</p>
+      </div>
+    );
   }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-100 px-4 py-10">
-
       <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
 
         <div className="text-center mb-8">
@@ -81,8 +122,9 @@ export default function SignInPage() {
 
             <input
               type="email"
-              onChange={handleChange}
               name="email"
+              value={formData.email}
+              onChange={handleChange}
               placeholder="Enter your email"
               required
               className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
@@ -98,6 +140,7 @@ export default function SignInPage() {
               <input
                 type={showPassword ? "text" : "password"}
                 name="password"
+                value={formData.password}
                 onChange={handleChange}
                 placeholder="Enter your password"
                 required
