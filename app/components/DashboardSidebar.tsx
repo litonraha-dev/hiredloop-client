@@ -11,41 +11,27 @@ import {
   Settings,
   Users,
   Wallet,
-  type LucideIcon,
 } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { DASHBOARD_PATHS, USER_ROLES, type UserRole } from "@/lib/roles";
+import { dashboardSections } from "@/lib/dashboard-sections";
+import { DASHBOARD_PATHS, type UserRole } from "@/lib/roles";
 
-const upcomingItemsByRole = {
-  [USER_ROLES.SEEKER]: [
-    { label: "Jobs", Icon: Briefcase },
-    { label: "Saved Jobs", Icon: Bookmark },
-    { label: "Applications", Icon: FileText },
-    { label: "Billing", Icon: Wallet },
-    { label: "Settings", Icon: Settings },
-  ],
-  [USER_ROLES.RECRUITER]: [
-    { label: "My Company", Icon: Building2 },
-    { label: "Manage Jobs", Icon: Briefcase },
-    { label: "Applications", Icon: FileText },
-    { label: "Settings", Icon: Settings },
-  ],
-  [USER_ROLES.ADMIN]: [
-    { label: "Users", Icon: Users },
-    { label: "Companies", Icon: Building2 },
-    { label: "Jobs", Icon: Briefcase },
-    { label: "Payments", Icon: Wallet },
-    { label: "Settings", Icon: Settings },
-  ],
-} satisfies Record<UserRole, { label: string; Icon: LucideIcon }[]>;
+const sectionIcons = {
+  jobs: Briefcase,
+  saved: Bookmark,
+  applications: FileText,
+  billing: Wallet,
+  settings: Settings,
+  company: Building2,
+  users: Users,
+};
 
 export function DashboardSidebar({ role }: { role: UserRole }) {
   const pathname = usePathname();
@@ -70,16 +56,25 @@ export function DashboardSidebar({ role }: { role: UserRole }) {
           </SidebarMenu>
         </SidebarGroup>
         <SidebarGroup>
-          {/* <SidebarGroupLabel>Coming soon</SidebarGroupLabel> */}
           <SidebarMenu>
-            {upcomingItemsByRole[role].map(({ label, Icon }) => (
-              <SidebarMenuItem key={label}>
-                <SidebarMenuButton disabled>
-                  <Icon />
-                  <span>{label}</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
+            {dashboardSections[role].map(({ label, icon, slug }) => {
+              const Icon = sectionIcons[icon];
+              const href = `${dashboardPath}/${slug}`;
+              const isActive = pathname === href;
+
+              return (
+                <SidebarMenuItem key={slug}>
+                  <SidebarMenuButton
+                    isActive={isActive}
+                    aria-current={isActive ? "page" : undefined}
+                    render={<Link href={href} />}
+                  >
+                    <Icon />
+                    <span>{label}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              );
+            })}
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
