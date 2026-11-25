@@ -23,6 +23,7 @@ export async function createJob(formData: FormData) {
     frequency: formData.get("frequency"),
     responsibilities: String(formData.get("responsibilities") ?? "").trim(),
     requirements: String(formData.get("requirements") ?? "").trim(),
+    companyImageUrl: String(formData.get("companyImageUrl") ?? "").trim(),
     recruiterId: session.user.id,
     createdAt: new Date().toISOString(),
   };
@@ -96,6 +97,7 @@ const fields = {
   frequency: read("frequency"),
   responsibilities: read("responsibilities"),
   requirements: read("requirements"),
+  ...(formData.has("companyImageUrl") && { companyImageUrl: read("companyImageUrl") }),
 };
 
   const res = await fetch(`${BASE_URL}/jobs/${encodeURIComponent(jobId)}`, {

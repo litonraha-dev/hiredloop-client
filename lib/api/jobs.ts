@@ -1,8 +1,17 @@
 export type Job = {
   _id: string;
   title?: string;
+  createdAt?: string;
   company?: string;
   category?: string;
+  description?: string;
+  experience?: string;
+  benefits?: string[];
+  verifiedEmployer?: boolean;
+  companySize?: string;
+  industry?: string;
+  companyWebsite?: string;
+  applicationUrl?: string;
   location?: string;
   remoteAllowed?: boolean;
   employmentType?: string;
@@ -13,6 +22,7 @@ export type Job = {
   deadline?: string | null;
    responsibilities?: string;
  requirements?: string;
+ companyImageUrl?:string;
 };
 const BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";

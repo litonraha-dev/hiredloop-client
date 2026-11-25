@@ -31,15 +31,16 @@ const instrumentSans = Instrument_Sans({
 });
 
 const navLinks = [
-  { label: "Browse Jobs", href: "/jobs" },
+  { label: "Browse Jobs", href: "/browse-jobs" },
   { label: "Company", href: "/company" },
   { label: "Pricing", href: "/pricing" },
 ];
 
 export function Navbar({
   className,
+  compact = false,
   ...props
-}: React.ComponentProps<"header">) {
+}: React.ComponentProps<"header"> & { compact?: boolean }) {
 
   const router = useRouter();
 
@@ -81,18 +82,18 @@ export function Navbar({
   return (
     <header
       className={cn(
-        "pt-6",
+        compact ? "py-3" : "pt-6",
         manrope.variable,
         instrumentSans.variable,
         className
       )}
       {...props}
     >
-      <div className="mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-[60px]">
+      <div className={compact ? "mx-auto w-full max-w-[1280px] px-4 sm:px-6" : "mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-[60px]"}>
 
         <nav
           aria-label="Main navigation"
-          className="relative flex h-[74px] items-center justify-between rounded-2xl bg-[#222222] pr-2 pl-6 sm:pr-3"
+          className={compact ? "relative flex min-h-14 items-center justify-between gap-4" : "relative flex h-[74px] items-center justify-between rounded-2xl bg-[#222222] pr-2 pl-6 sm:pr-3"}
         >
 
           {/* Logo */}
@@ -106,14 +107,15 @@ export function Navbar({
           </Link>
 
           {/* Desktop */}
-          <div className="hidden items-center gap-6 lg:flex">
+          <div className={cn("hidden items-center gap-6 lg:flex", compact && "rounded-lg border border-white/[.06] bg-[#1a1a1e] py-1.5 pr-1.5 pl-5 [&_a]:text-sm [&_a]:h-10 [&_ul_a]:h-auto")}>
 
-            <ul className="flex items-center gap-10">
+            <ul className={cn("flex items-center", compact ? "gap-5" : "gap-10")}>
               {navLinks.map((link) => (
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-base text-white transition-colors hover:text-white/70"
+                    aria-current={compact && link.href === "/browse-jobs" ? "page" : undefined}
+                    className={cn("text-base text-white transition-colors hover:text-white/70", compact && link.href === "/browse-jobs" && "font-semibold underline underline-offset-4")}
                   >
                     {link.label}
                   </Link>

@@ -45,6 +45,16 @@ export default function JobFormFields({
             />
           </label>
           <label className={labelStyle}>
+  Company image URL
+  <input
+    type="url"
+    name="companyImageUrl"
+    placeholder="https://example.com/company.jpg"
+    defaultValue={job?.companyImageUrl ?? ""}
+    className={controlStyle}
+  />
+</label>
+          <label className={labelStyle}>
             Job Category *
             <select
               name="category"
