@@ -114,3 +114,43 @@ const fields = {
   if (res.status === 404) return "This job was not found in your account.";
   return "Could not update the job. Please try again.";
 }
+
+type ApplicationData = {
+  jobId: string
+  jobTitle: string
+  companyName: string
+}
+
+export async function applyToJob(data: ApplicationData) {
+  const session = await getSession()
+
+  if (!session?.user) {
+    throw new Error("Please sign in first")
+  }
+
+  if (session.user.role !== "seeker") {
+    throw new Error("Only job seekers can apply")
+  }
+
+  const application = {
+    ...data,
+    userId: session.user.id,
+    email: session.user.email,
+    status: "pending",
+    appliedAt: new Date().toISOString(),
+  }
+
+  const response = await fetch(`${BASE_URL}/applications`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(application),
+  })
+
+  if (!response.ok) {
+    throw new Error("Failed to submit application")
+  }
+
+  return await response.json()
+}

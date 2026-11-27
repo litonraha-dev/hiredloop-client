@@ -3,11 +3,15 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 
 export default function SignInPage() {
+
+  const searchParams = useSearchParams()
+  const redirectTo = searchParams.get("redirectTo")?? '/'
+
   const router = useRouter();
 
   const { data: session, isPending } = authClient.useSession();
@@ -22,9 +26,16 @@ export default function SignInPage() {
   });
 
   useEffect(() => {
-    if (isPending || !session) return;
-    router.replace("/dashboard");
-  }, [session, isPending, router]);
+  if (isPending || !session?.user) return
+
+  const destination = new URLSearchParams(window.location.search)
+    .get("redirectTo")
+
+  const isApplicationPath =
+    destination && /^\/browse-jobs\/[a-f0-9]{24}\/apply$/i.test(destination)
+
+  router.replace(isApplicationPath ? destination : "/dashboard")
+}, [session, isPending, router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -46,6 +57,7 @@ export default function SignInPage() {
       const { error } = await authClient.signIn.email({
         email: formData.email,
         password: formData.password,
+        cllbackUrl: redirectTo,
       });
 
       if (error) {
@@ -56,6 +68,7 @@ export default function SignInPage() {
       setFormData({
         email: "",
         password: "",
+        
       });
 
       toast.success("Signed in successfully!");

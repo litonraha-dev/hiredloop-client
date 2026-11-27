@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import {
   ArrowLeft,
@@ -12,12 +12,16 @@ import {
   ChartNoAxesColumnIncreasing,
   Clock3,
   MapPin,
+
 } from "lucide-react"
 
 import { Navbar } from "@/components/navbar"
 import { getJobs, type Job } from "@/lib/api/jobs"
 import { CompanyImage } from "../company-image"
 import { JobBookmark } from "../job-bookmark"
+import { useSession } from "@/lib/auth-client"
+import { applyToJob } from "@/lib/actions/jobs"
+import { toast } from "sonner"
 
 const panel = "rounded-xl border border-white/[.06] bg-[#151518]"
 const money = new Intl.NumberFormat("en", {
@@ -36,6 +40,7 @@ function externalUrl(value?: string) {
 }
 
 export default function JobDetailsPage() {
+  
   const { id } = useParams<{ id: string }>()
   return (
     <div className="min-h-svh bg-[#0a0a0b] text-zinc-100">
@@ -48,8 +53,13 @@ export default function JobDetailsPage() {
 }
 
 function JobDetails({ id }: { id: string }) {
-  const [job, setJob] = useState<Job | null | undefined>()
-  const [error, setError] = useState(false)
+const router = useRouter()
+const { data: session, isPending } = useSession()
+
+const [job, setJob] = useState<Job | null | undefined>()
+const [error, setError] = useState(false)
+const [applyError, setApplyError] = useState("")
+const [applying, setApplying] = useState(false)
 
   useEffect(() => {
     let active = true
@@ -97,6 +107,58 @@ function JobDetails({ id }: { id: string }) {
     .filter(Boolean)
     .join(" · ")
   const applyUrl = externalUrl(job.applicationUrl)
+async function handleApplyNow() {
+  if (isPending || applying || !job) return
+
+  setApplyError("")
+
+  if (!session?.user) {
+    toast.error("Please sign in first")
+
+    router.push(
+      `/sign-in?redirectTo=${encodeURIComponent(`/browse-jobs/${id}`)}`
+    )
+
+    return
+  }
+
+  if (session.user.role !== "seeker") {
+    toast.error("Only job seekers can apply")
+    return
+  }
+
+  try {
+    setApplying(true)
+
+    const application = {
+      jobId: job._id,
+      jobTitle: job.title,
+      companyName: job.company,
+    }
+
+    const res = await applyToJob(application)
+
+    if (res.insertedId) {
+      toast.success("Application submitted successfully")
+      router.push("/browse-jobs")
+    } else {
+      setApplyError("Failed to submit application")
+    }
+
+  } catch (error) {
+    console.error(error)
+
+    setApplyError(
+      error instanceof Error
+        ? error.message
+        : "Something went wrong"
+    )
+
+  } finally {
+    setApplying(false)
+  }
+}
+
   const website = externalUrl(job.companyWebsite)
   const facts = [
     {
@@ -128,6 +190,7 @@ function JobDetails({ id }: { id: string }) {
     { label: "Location", value: location },
   ].filter(({ value }) => value)
 
+    
   return (
     <article className="space-y-5">
       <header
@@ -162,17 +225,18 @@ function JobDetails({ id }: { id: string }) {
           <div className="rounded-lg border border-white/10 bg-white/[.04]">
             <JobBookmark id={job._id} title={title} />
           </div>
-          {applyUrl ? (
-            <a
-              href={applyUrl}
-              className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-zinc-950 hover:bg-zinc-200"
-            >
-              Apply Now
-            </a>
-          ) : (
-            <span className="rounded-lg border border-white/10 px-3 py-2 text-sm text-zinc-400">
-              Applications unavailable
-            </span>
+         <button
+  type="button"
+  disabled={isPending || applying}
+  onClick={handleApplyNow}
+  className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-zinc-950 hover:bg-zinc-200 disabled:opacity-60"
+>
+  {applying ? "Applying..." : "Apply Now"}
+</button>
+          {applyError && (
+            <p role="alert" className="basis-full text-sm text-red-300">
+              {applyError}
+            </p>
           )}
         </div>
       </header>
